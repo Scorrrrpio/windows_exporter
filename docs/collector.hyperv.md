@@ -10,9 +10,9 @@ The hyperv collector exposes metrics about the Hyper-V hypervisor
 
 ## Flags
 
-### `--collectors.hyperv.enabled`
+### `--collector.hyperv.enabled`
 Comma-separated list of collectors to use, for example:
-`--collectors.hyperv.enabled=dynamic_memory_balancer,dynamic_memory_vm,hypervisor_logical_processor,hypervisor_root_partition,hypervisor_root_virtual_processor,hypervisor_virtual_processor,legacy_network_adapter,virtual_machine_health_summary,virtual_machine_vid_partition,virtual_network_adapter,virtual_storage_device,virtual_switch`.
+`--collector.hyperv.enabled=dynamic_memory_balancer,dynamic_memory_vm,hypervisor_logical_processor,hypervisor_root_partition,hypervisor_root_virtual_processor,hypervisor_virtual_processor,legacy_network_adapter,replica_vm,virtual_machine_health_summary,virtual_machine_vid_partition,virtual_network_adapter,virtual_storage_device,virtual_switch`.
 Matching is case-sensitive.
 
 ## Metrics
@@ -159,6 +159,12 @@ Some metrics explained: https://learn.microsoft.com/en-us/archive/blogs/chrisavi
 | `windows_hyperv_hypervisor_virtual_processor_mode_time_total`                  | Time that processor spent in different modes (hypervisor, guest_run, guest_idle, remote)                           | counter | `vm`, `core`, `state` |
 | `windows_hyperv_hypervisor_virtual_processor_run_time_total`                   | Time that processor spent                                                                                          | counter | `vm`, `core`          |
 | `windows_hyperv_hypervisor_virtual_processor_cpu_wait_time_per_dispatch_total` | The average time (in nanoseconds) spent waiting for a virtual processor to be dispatched onto a logical processor. | counter | `vm`, `core`          |
+
+### Hyper-V Replica VM
+
+| Name                                                        | Description                                            | Type  | Labels |
+|-------------------------------------------------------------|--------------------------------------------------------|-------|--------|
+| `windows_hyperv_replica_vm_last_replication_size_bytes`     | Represents the size of the last replication in bytes.  | gauge | `vm`   |
 
 ### Hyper-V Virtual Network Adapter
 

@@ -43,6 +43,7 @@ const (
 	subCollectorHypervisorRootVirtualProcessor   = "hypervisor_root_virtual_processor"
 	subCollectorHypervisorVirtualProcessor       = "hypervisor_virtual_processor"
 	subCollectorLegacyNetworkAdapter             = "legacy_network_adapter"
+	subCollectorReplicaVM                        = "replica_vm"
 	subCollectorVirtualMachineHealthSummary      = "virtual_machine_health_summary"
 	subCollectorVirtualMachineVidPartition       = "virtual_machine_vid_partition"
 	subCollectorVirtualNetworkAdapter            = "virtual_network_adapter"
@@ -67,6 +68,7 @@ var ConfigDefaults = Config{
 		subCollectorHypervisorRootVirtualProcessor,
 		subCollectorHypervisorVirtualProcessor,
 		subCollectorLegacyNetworkAdapter,
+		subCollectorReplicaVM,
 		subCollectorVirtualMachineHealthSummary,
 		subCollectorVirtualMachineVidPartition,
 		subCollectorVirtualNetworkAdapter,
@@ -87,6 +89,7 @@ type Collector struct {
 	collectorHypervisorRootVirtualProcessor
 	collectorHypervisorVirtualProcessor
 	collectorLegacyNetworkAdapter
+	collectorReplicaVM
 	collectorVirtualMachineHealthSummary
 	collectorVirtualMachineVidPartition
 	collectorVirtualNetworkAdapter
@@ -207,6 +210,11 @@ func (c *Collector) Build(logger *slog.Logger, _ *mi.Session) error {
 			build:   c.buildLegacyNetworkAdapter,
 			collect: c.collectLegacyNetworkAdapter,
 			close:   c.perfDataCollectorLegacyNetworkAdapter.Close,
+		},
+		subCollectorReplicaVM: {
+			build:   c.buildReplicaVM,
+			collect: c.collectReplicaVM,
+			close:   c.perfDataCollectorReplicaVM.Close,
 		},
 		subCollectorVirtualMachineHealthSummary: {
 			build:   c.buildVirtualMachineHealthSummary,
