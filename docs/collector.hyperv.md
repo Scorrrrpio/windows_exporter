@@ -168,6 +168,7 @@ Some metrics explained: https://learn.microsoft.com/en-us/archive/blogs/chrisavi
 | `windows_hyperv_replica_vm_average_replication_size_bytes`     | Represents the average replication size in bytes.  | gauge | `vm`   |
 | `windows_hyperv_replica_vm_compression_efficiency`     | Represents the compression efficiency of the latest replication.  | gauge | `vm`   |
 | `windows_hyperv_replica_vm_last_replication_size_bytes`     | Represents the size of the last replication in bytes.  | gauge | `vm`   |
+| `windows_hyperv_replica_vm_replication_count_total`     | Represents the total number of replications.  | gauge | `vm`   |
 | `windows_hyperv_replica_vm_replication_latency_seconds`     | Represents the time to send the previous replication in seconds.  | gauge | `vm`   |
 
 ### Hyper-V Virtual Network Adapter

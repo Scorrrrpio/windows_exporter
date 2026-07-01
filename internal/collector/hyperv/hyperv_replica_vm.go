@@ -37,6 +37,8 @@ type collectorReplicaVM struct {
 	replicaVMCompressionEfficiency            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Last Replication Size
 	replicaVMLastReplicationSizeBytes         *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Replication Count
+	replicaVMReplicationCountTotal            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Replication Latency
 	replicaVMReplicationLatencySeconds        *prometheus.Desc
 }
@@ -48,6 +50,7 @@ type perfDataCounterValuesReplicaVM struct {
 	ReplicaVMAverageReplicationSizeBytes      float64 `perfdata:"Average Replication Size"`
 	ReplicaVMCompressionEfficiency            float64 `perfdata:"Compression Efficiency"`
 	ReplicaVMLastReplicationSizeBytes         float64 `perfdata:"Last Replication Size"`
+	ReplicaVMReplicationCountTotal            float64 `perfdata:"Replication Count"`
 	ReplicaVMReplicationLatencySeconds        float64 `perfdata:"Replication Latency"`
 }
 
@@ -83,6 +86,13 @@ func (c *Collector) buildReplicaVM() error {
 	c.replicaVMLastReplicationSizeBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_last_replication_size_bytes"),
 		"Represents the size of the last replication in bytes",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMReplicationCountTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_replication_count_total"),
+		"Represents the total number of replications",
 		[]string{"vm"},
 		nil,
 	)
@@ -126,6 +136,12 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 			c.replicaVMLastReplicationSizeBytes,
 			prometheus.GaugeValue,
 			data.ReplicaVMLastReplicationSizeBytes,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMReplicationCountTotal,
+			prometheus.CounterValue,
+			data.ReplicaVMReplicationCountTotal,
 			data.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
