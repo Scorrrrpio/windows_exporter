@@ -29,17 +29,23 @@ type collectorReplicaVM struct {
 	perfDataCollectorReplicaVM *pdh.Collector
 	perfDataObjectReplicaVM    []perfDataCounterValuesReplicaVM
 
+	// \Hyper-V Replica VM(*)\Average Replication Latency
+	replicaVMAverageReplicationLatencySeconds *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Average Replication Size
 	replicaVMAverageReplicationSizeBytes *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Last Replication Size
 	replicaVMLastReplicationSizeBytes *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Replication Latency
+	replicaVMReplicationLatencySeconds *prometheus.Desc
 }
 
 type perfDataCounterValuesReplicaVM struct {
 	Name string
 
+	ReplicaVMAverageReplicationLatencySeconds float64 `perfdata:"Average Replication Latency"`
 	ReplicaVMAverageReplicationSizeBytes float64 `perfdata:"Average Replication Size"`
 	ReplicaVMLastReplicationSizeBytes    float64 `perfdata:"Last Replication Size"`
+	ReplicaVMReplicationLatencySeconds float64 `perfdata:"Replication Latency"`
 }
 
 func (c *Collector) buildReplicaVM() error {
@@ -50,9 +56,9 @@ func (c *Collector) buildReplicaVM() error {
 		return fmt.Errorf("failed to create Hyper-V Replica VM collector: %w", err)
 	}
 
-	c.replicaVMLastReplicationSizeBytes = prometheus.NewDesc(
-		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_last_replication_size_bytes"),
-		"Represents the size of the last replication in bytes",
+	c.replicaVMAverageReplicationLatencySeconds = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_average_replication_latency_seconds"),
+		"Represents the average time to send replication in seconds",
 		[]string{"vm"},
 		nil,
 	)
@@ -60,6 +66,20 @@ func (c *Collector) buildReplicaVM() error {
 	c.replicaVMAverageReplicationSizeBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_average_replication_size_bytes"),
 		"Represents the average replication size in bytes",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMLastReplicationSizeBytes = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_last_replication_size_bytes"),
+		"Represents the size of the last replication in bytes",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMReplicationLatencySeconds = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_replication_latency_seconds"),  // TODO should this match LAST_replication_size_bytes?
+		"Represents the time to send the previous replication in seconds",
 		[]string{"vm"},
 		nil,
 	)
@@ -75,6 +95,12 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 
 	for _, data := range c.perfDataObjectReplicaVM {
 		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMAverageReplicationLatencySeconds,
+			prometheus.GaugeValue,
+			data.ReplicaVMAverageReplicationLatencySeconds,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
 			c.replicaVMAverageReplicationSizeBytes,
 			prometheus.GaugeValue,
 			data.ReplicaVMAverageReplicationSizeBytes,
@@ -84,6 +110,12 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 			c.replicaVMLastReplicationSizeBytes,
 			prometheus.GaugeValue,
 			data.ReplicaVMLastReplicationSizeBytes,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMReplicationLatencySeconds,
+			prometheus.GaugeValue,
+			data.ReplicaVMReplicationLatencySeconds,
 			data.Name,
 		)
 	}
