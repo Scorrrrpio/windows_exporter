@@ -164,6 +164,7 @@ Some metrics explained: https://learn.microsoft.com/en-us/archive/blogs/chrisavi
 
 | Name                                                        | Description                                            | Type  | Labels |
 |-------------------------------------------------------------|--------------------------------------------------------|-------|--------|
+| `windows_hyperv_replica_vm_average_replication_size_bytes`     | Represents the average replication size in bytes.  | gauge | `vm`   |
 | `windows_hyperv_replica_vm_last_replication_size_bytes`     | Represents the size of the last replication in bytes.  | gauge | `vm`   |
 
 ### Hyper-V Virtual Network Adapter
