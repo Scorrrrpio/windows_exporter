@@ -32,20 +32,23 @@ type collectorReplicaVM struct {
 	// \Hyper-V Replica VM(*)\Average Replication Latency
 	replicaVMAverageReplicationLatencySeconds *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Average Replication Size
-	replicaVMAverageReplicationSizeBytes *prometheus.Desc
+	replicaVMAverageReplicationSizeBytes      *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Compression Efficiency
+	replicaVMCompressionEfficiency            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Last Replication Size
-	replicaVMLastReplicationSizeBytes *prometheus.Desc
+	replicaVMLastReplicationSizeBytes         *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Replication Latency
-	replicaVMReplicationLatencySeconds *prometheus.Desc
+	replicaVMReplicationLatencySeconds        *prometheus.Desc
 }
 
 type perfDataCounterValuesReplicaVM struct {
 	Name string
 
 	ReplicaVMAverageReplicationLatencySeconds float64 `perfdata:"Average Replication Latency"`
-	ReplicaVMAverageReplicationSizeBytes float64 `perfdata:"Average Replication Size"`
-	ReplicaVMLastReplicationSizeBytes    float64 `perfdata:"Last Replication Size"`
-	ReplicaVMReplicationLatencySeconds float64 `perfdata:"Replication Latency"`
+	ReplicaVMAverageReplicationSizeBytes      float64 `perfdata:"Average Replication Size"`
+	ReplicaVMCompressionEfficiency            float64 `perfdata:"Compression Efficiency"`
+	ReplicaVMLastReplicationSizeBytes         float64 `perfdata:"Last Replication Size"`
+	ReplicaVMReplicationLatencySeconds        float64 `perfdata:"Replication Latency"`
 }
 
 func (c *Collector) buildReplicaVM() error {
@@ -66,6 +69,13 @@ func (c *Collector) buildReplicaVM() error {
 	c.replicaVMAverageReplicationSizeBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_average_replication_size_bytes"),
 		"Represents the average replication size in bytes",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMCompressionEfficiency = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_compression_efficiency"),
+		"Represents the compression efficiency of the latest replication",  // TODO confirm what this perf counter actually represents
 		[]string{"vm"},
 		nil,
 	)
@@ -104,6 +114,12 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 			c.replicaVMAverageReplicationSizeBytes,
 			prometheus.GaugeValue,
 			data.ReplicaVMAverageReplicationSizeBytes,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMCompressionEfficiency,
+			prometheus.GaugeValue,
+			data.ReplicaVMCompressionEfficiency,
 			data.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
