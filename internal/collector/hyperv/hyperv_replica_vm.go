@@ -37,10 +37,16 @@ type collectorReplicaVM struct {
 	replicaVMCompressionEfficiency            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Last Replication Size
 	replicaVMLastReplicationSizeBytes         *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Network Bytes Recv
+	replicaVMNetworkBytesRecvTotal            *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Network Bytes Sent
+	replicaVMNetworkBytesSentTotal            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Replication Count
 	replicaVMReplicationCountTotal            *prometheus.Desc
 	// \Hyper-V Replica VM(*)\Replication Latency
 	replicaVMReplicationLatencySeconds        *prometheus.Desc
+	// \Hyper-V Replica VM(*)\Resynchronized Bytes
+	replicaVMResynchronizedBytesTotal         *prometheus.Desc
 }
 
 type perfDataCounterValuesReplicaVM struct {
@@ -50,8 +56,11 @@ type perfDataCounterValuesReplicaVM struct {
 	ReplicaVMAverageReplicationSizeBytes      float64 `perfdata:"Average Replication Size"`
 	ReplicaVMCompressionEfficiency            float64 `perfdata:"Compression Efficiency"`
 	ReplicaVMLastReplicationSizeBytes         float64 `perfdata:"Last Replication Size"`
+	ReplicaVMNetworkBytesRecvTotal            float64 `perfdata:"Network Bytes Recv"`
+	ReplicaVMNetworkBytesSentTotal            float64 `perfdata:"Network Bytes Sent"`
 	ReplicaVMReplicationCountTotal            float64 `perfdata:"Replication Count"`
 	ReplicaVMReplicationLatencySeconds        float64 `perfdata:"Replication Latency"`
+	ReplicaVMResynchronizedBytesTotal         float64 `perfdata:"Resynchronized Bytes"`
 }
 
 func (c *Collector) buildReplicaVM() error {
@@ -90,6 +99,20 @@ func (c *Collector) buildReplicaVM() error {
 		nil,
 	)
 
+	c.replicaVMNetworkBytesRecvTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_network_bytes_recv_total"),
+		"Represents the total number of bytes received during replication",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMNetworkBytesSentTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_network_bytes_sent_total"),
+		"Represents the total number of bytes sent during replication",
+		[]string{"vm"},
+		nil,
+	)
+
 	c.replicaVMReplicationCountTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_replication_count_total"),
 		"Represents the total number of replications",
@@ -100,6 +123,13 @@ func (c *Collector) buildReplicaVM() error {
 	c.replicaVMReplicationLatencySeconds = prometheus.NewDesc(
 		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_replication_latency_seconds"),  // TODO should this match LAST_replication_size_bytes?
 		"Represents the time to send the previous replication in seconds",
+		[]string{"vm"},
+		nil,
+	)
+
+	c.replicaVMResynchronizedBytesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(types.Namespace, Name, "replica_vm_resynchronized_bytes_total"),
+		"Repesents the total number of resynchronized bytes",
 		[]string{"vm"},
 		nil,
 	)
@@ -139,6 +169,18 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 			data.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMNetworkBytesRecvTotal,
+			prometheus.CounterValue,
+			data.ReplicaVMNetworkBytesRecvTotal,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMNetworkBytesSentTotal,
+			prometheus.CounterValue,
+			data.ReplicaVMNetworkBytesSentTotal,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
 			c.replicaVMReplicationCountTotal,
 			prometheus.CounterValue,
 			data.ReplicaVMReplicationCountTotal,
@@ -148,6 +190,12 @@ func (c *Collector) collectReplicaVM(ch chan<- prometheus.Metric) error {
 			c.replicaVMReplicationLatencySeconds,
 			prometheus.GaugeValue,
 			data.ReplicaVMReplicationLatencySeconds,
+			data.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.replicaVMResynchronizedBytesTotal,
+			prometheus.CounterValue,
+			data.ReplicaVMResynchronizedBytesTotal,
 			data.Name,
 		)
 	}
